@@ -11,6 +11,10 @@ const router = createBrowserRouter([
         index: true,
         Component: Home,
       },
+      // {
+      //   path: '/services',
+      //   Component:
+      // }
     ],
   },
 ]);
