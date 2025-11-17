@@ -16,3 +16,12 @@ body {
   font-style: normal;
   background-color: #eaeced;
 }
+
+a.active{
+  color: #03373D;
+  background-color: #CAEB66;
+  border-radius: 50px;
+}
+li{
+  font-weight: 600;
+}

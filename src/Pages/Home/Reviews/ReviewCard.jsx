@@ -2,7 +2,7 @@ import React from "react";
 import { FaQuoteLeft } from "react-icons/fa";
 
 const ReviewCard = ({ review }) => {
-    console.log(review)
+    // console.log(review)
   const { userName, review: testimonial, user_photoURL } = review;
 
   return (
