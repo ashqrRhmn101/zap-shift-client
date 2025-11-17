@@ -3,7 +3,7 @@ import logo from "../assets/logo.png"
 
 const Logo = () => {
     return (
-        <div className='flex justify-center items-center'>
+        <div className='flex items-center'>
             <img src={logo} alt="" />
             <h3 className='text-2xl font-bold -ms-2.5'>ZapShift</h3>
         </div>
