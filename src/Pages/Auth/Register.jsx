@@ -1,7 +1,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../../Hooks/useAuth";
+import SocialLogin from "../SocialLogin/SocialLogin";
 
 const Register = () => {
   const {
@@ -11,12 +12,14 @@ const Register = () => {
   } = useForm();
 
   const { registerUser } = useAuth();
+  const navigate = useNavigate();
 
   const handleRegister = (data) => {
     console.log(data);
     registerUser(data.email, data.password)
       .then((result) => {
         console.log(result);
+        navigate("/");
       })
       .catch((error) => {
         console.log(error.message);
@@ -93,6 +96,7 @@ const Register = () => {
           </p>
         </fieldset>
       </form>
+      <SocialLogin />
     </div>
   );
 };

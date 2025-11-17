@@ -5,9 +5,13 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from "firebase/auth";
+import { GoogleAuthProvider } from "firebase/auth";
+
+const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -15,23 +19,32 @@ const AuthProvider = ({ children }) => {
 
   // User Register
   const registerUser = (email, password) => {
+    setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   // User SignIn
   const signInUser = (email, password) => {
+    setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
   // User Sign Out
   const signOutUser = () => {
+    setLoading(true);
     return signOut(auth);
   };
 
-  // user Profile
-  //   const userProfile=  () =>{
-  //     return updateProfile(auth, (currentUser))
-  //   }
+  // Google signInWithPopup
+  const googleSignIn = () => {
+    setLoading(true);
+    return signInWithPopup(auth, googleProvider);
+  };
+
+  //   user Profile
+  const userProfile = (photoData) => {
+    return updateProfile(auth.currentUser, photoData);
+  };
 
   // onAuthStateChanged
   useEffect(() => {
@@ -46,12 +59,13 @@ const AuthProvider = ({ children }) => {
 
   const authInfo = {
     user,
-    setUser,
+    // setUser,
     loading,
     registerUser,
     signInUser,
     signOutUser,
-    authChanged,
+    googleSignIn,
+    userProfile,
   };
   return <AuthContext value={authInfo}>{children}</AuthContext>;
 };

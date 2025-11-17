@@ -1,7 +1,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../../Hooks/useAuth";
+import SocialLogin from "../SocialLogin/SocialLogin";
 
 const Login = () => {
   const {
@@ -11,12 +12,14 @@ const Login = () => {
   } = useForm();
 
   const { signInUser } = useAuth();
+  const navigate = useNavigate();
 
   const userSignIn = (data) => {
     console.log(data);
     signInUser(data.email, data.password)
       .then((result) => {
         console.log(result);
+        navigate("/");
       })
       .catch((error) => {
         console.log(error.message);
@@ -26,7 +29,7 @@ const Login = () => {
   return (
     <div>
       <form onSubmit={handleSubmit(userSignIn)}>
-        <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+        <fieldset className="fieldset rounded-box w-xs p-4">
           <h2 className="text-3xl font-bold text-[#03373D]">Welcome Back</h2>
           <p className="text-lg">Login with ZapShift</p>
 
@@ -61,14 +64,15 @@ const Login = () => {
 
           <button className="btn btn-neutral mt-4">Login</button>
 
-          <p>
+          <p className="text-sm">
             GDon’t have any account?{" "}
             <Link to="/register">
-              <span className="text-[#03373D]">Register</span>
+              <span className="text-[#CAEB66]">Register</span>
             </Link>
           </p>
         </fieldset>
       </form>
+      <SocialLogin />
     </div>
   );
 };
