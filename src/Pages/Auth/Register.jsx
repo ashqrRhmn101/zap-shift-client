@@ -1,8 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import useAuth from "../../Hooks/useAuth";
 import SocialLogin from "../SocialLogin/SocialLogin";
+import axios from "axios";
 
 const Register = () => {
   const {
@@ -11,15 +12,40 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { registerUser } = useAuth();
+  const { registerUser, userProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // console.log("Login Page", location);
 
   const handleRegister = (data) => {
-    console.log(data);
+    // console.log(data);
+    const profileImg = data.file[0];
+
     registerUser(data.email, data.password)
       .then((result) => {
-        console.log(result);
-        navigate("/");
+        console.log(result.user);
+        // Store the img
+        const formData = new FormData();
+        formData.append("image", profileImg);
+        const image_API_URL = `https://api.imgbb.com/1/upload?expiration=600&key=${
+          import.meta.env.VITE_image_host_key
+        }`;
+
+        axios.post(image_API_URL, formData).then((res) => {
+          console.log("after image update", res.data);
+
+          // update user profile
+          const userProfileData = {
+            displayName: data.name,
+            photoURL: res.data.data.url,
+          };
+          userProfile(userProfileData)
+            .then(() => {
+              console.log("user profile done");
+              navigate(location?.state || "/");
+            })
+            .catch((error) => console.log(error));
+        });
       })
       .catch((error) => {
         console.log(error.message);
@@ -45,6 +71,19 @@ const Register = () => {
           />
           {errors.name?.type === "required" && (
             <p className="text-red-500">Name is required</p>
+          )}
+
+          {/* Photo */}
+          {/* <input type="file" className="file-input" /> */}
+          <label className="label">Photo</label>
+          <input
+            type="file"
+            {...register("file", { required: true })}
+            className="file-input"
+            placeholder="Your Photo"
+          />
+          {errors.name?.type === "required" && (
+            <p className="text-red-500">Photo is required</p>
           )}
 
           {/* email */}
@@ -90,7 +129,7 @@ const Register = () => {
           <button className="btn btn-neutral mt-4">Register</button>
           <p className="text-sm">
             Already have an account?{" "}
-            <Link to="/login">
+            <Link state={location.state} to="/login">
               <span className="text-[#CAEB66]">Login</span>
             </Link>
           </p>
