@@ -2,6 +2,8 @@ import React from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useLoaderData } from "react-router";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import useAuth from "../../Hooks/useAuth";
 
 const SendParcel = () => {
   const {
@@ -11,6 +13,9 @@ const SendParcel = () => {
     control,
     formState: { errors },
   } = useForm();
+
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   // Get regions data & sort && convert arr
   const serverCenters = useLoaderData();
@@ -30,11 +35,34 @@ const SendParcel = () => {
 
   // Handle Send Parcel
   const handleSendParcel = (data) => {
-    console.log(data);
+    // console.log(data);
+    const isDocument = data.parcelType === "document";
+    const isSameDistrict = data.senderDistrict === data.receiverDistrict;
+    const parcelWeight = parseFloat(data.parcelWeight);
+    // console.log(isSameDistrict);
+
+    let cost = 0;
+    if (isDocument) {
+      cost = isSameDistrict ? 60 : 80;
+    } else {
+      if (parcelWeight < 3) {
+        cost = isSameDistrict ? 110 : 150;
+      } else {
+        const minCharge = isSameDistrict ? 110 : 150;
+        const extraWeight = parcelWeight - 3;
+        const extraCharge = isSameDistrict
+          ? extraWeight * 40
+          : extraWeight * 40 + 40;
+        cost = minCharge + extraCharge;
+      }
+    }
+
+    console.log(cost);
+    data.cost = cost;
 
     Swal.fire({
       title: "Agree with the cost?",
-      text: "You won't be able to revert this!",
+      text: `You will be charged ${cost} taka!`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -42,6 +70,11 @@ const SendParcel = () => {
       confirmButtonText: "Yes, Take it!",
     }).then((result) => {
       if (result.isConfirmed) {
+        // save the parcel info to the database
+        axiosSecure.post("/parcels", data).then((res) => {
+          console.log("after save parcel", res.data);
+        });
+
         Swal.fire({
           title: "Excellent",
           text: "Your file has been success.",
@@ -182,6 +215,7 @@ const SendParcel = () => {
             <input
               type="text"
               {...register("senderName", { required: true })}
+              defaultValue={user?.displayName}
               placeholder="Sender Name"
               className="input input-bordered w-full rounded-xl mt-1"
             />
@@ -203,6 +237,7 @@ const SendParcel = () => {
             <input
               type="email"
               {...register("senderEmail", { required: true })}
+              defaultValue={user?.email}
               className="input input-bordered w-full rounded-xl mt-1"
               placeholder="Email"
             />
