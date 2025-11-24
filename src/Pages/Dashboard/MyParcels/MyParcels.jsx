@@ -7,6 +7,7 @@ import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
+import { Link } from "react-router";
 
 const MyParcels = () => {
   const { user } = useAuth();
@@ -50,6 +51,20 @@ const MyParcels = () => {
     });
   };
 
+  const handlePayment = async (parcel) => {
+    const paymentInfo = {
+      cost: parcel.cost,
+      parcelId: parcel._id,
+      senderEmail: parcel.senderEmail,
+      parcelName: parcel.parcelName,
+    };
+
+    const res = await axiosSecure.post("/create-checkout-session", paymentInfo);
+
+    console.log(res.data);
+    window.location.assign(res.data.url);
+  };
+
   return (
     <div>
       <h1>Add All parcels : {parcels.length}</h1>
@@ -63,7 +78,8 @@ const MyParcels = () => {
                 <th></th>
                 <th>Name</th>
                 <th>Cost</th>
-                <th>Payment Status</th>
+                <th>Payment</th>
+                <th>Delivery Status</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -73,7 +89,19 @@ const MyParcels = () => {
                   <th>{i + 1}</th>
                   <td>{parcel.parcelName}</td>
                   <td>{parcel.cost}</td>
-                  <td>Pending</td>
+                  <td>
+                    {parcel.paymentStatus === "paid" ? (
+                      <span className="text-green-500">Paid</span>
+                    ) : (
+                      <button
+                        onClick={() => handlePayment(parcel)}
+                        className="font-semibold btn btn-primary text-black hover:text-green-500"
+                      >
+                        Pay
+                      </button>
+                    )}
+                  </td>
+                  <td>{parcel.deliveryStatus}</td>
                   <td className="flex gap-5">
                     <button className="btn btn-square hover:bg-primary">
                       <FaMagnifyingGlass />
